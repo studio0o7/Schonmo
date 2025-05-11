@@ -23,6 +23,8 @@ export function addDrivetrain(
   WHITE_COLOR: THREE.Color,
   pointBudget?: number
 ) {
+  // Track starting points to enforce budget
+  const startingPoints = points.length;
   const SILVER_COLOR = new THREE.Color("#C0C0C0");
   const BLACK_COLOR = new THREE.Color("#202020");
   
@@ -443,5 +445,12 @@ export function addDrivetrain(
         colors.push(color);
       }
     }
+  }
+
+  // Enforce point budget by truncating excess points
+  if (pointBudget && points.length - startingPoints > pointBudget) {
+    const toRemove = (points.length - startingPoints) - pointBudget;
+    points.splice(points.length - toRemove, toRemove);
+    colors.splice(colors.length - toRemove, toRemove);
   }
 } 
