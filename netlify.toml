@@ -1,0 +1,13 @@
+# Define the edge function and its path
+[[edge_functions]]
+  function = "geo"
+  path = "/*"
+
+# Build settings
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+# Configure Next.js correctly
+[[plugins]]
+  package = "@netlify/plugin-nextjs" 

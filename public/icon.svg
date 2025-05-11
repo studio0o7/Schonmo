@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none">
+  <!-- Background gradient -->
+  <rect width="64" height="64" rx="16" fill="url(#grad)" />
+  
+  <!-- FX letters with sparkle effect -->
+  <path d="M20 18H36V24H26V30H34V36H26V46H20V18Z" fill="white" />
+  <path d="M38 18L46 32L54 18H60L48 38V46H42V38L30 18H38Z" fill="white" />
+  
+  <!-- Sparkle in top-right -->
+  <path d="M48 14L50 16L52 14L50 12L48 14Z" fill="#ffffff" />
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#3b82f6" />
+      <stop offset="1" stop-color="#14b8a6" />
+    </linearGradient>
+  </defs>
+</svg> 
