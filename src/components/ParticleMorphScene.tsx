@@ -35,7 +35,7 @@ export default function ParticleMorphScene({ onAnimationComplete }: ParticleMorp
   }, []);
 
   // Mobile-specific positioning to better center and scale the animation
-  const mobilePosition: [number, number, number] = [-6, 1.5, 7]; // Closer and more centered
+  const mobilePosition: [number, number, number] = [-6, 4, 7]; // Closer and more centered
   const desktopPosition: [number, number, number] = [-8, 3, 10]; // Original position
 
   return (
@@ -67,7 +67,7 @@ export default function ParticleMorphScene({ onAnimationComplete }: ParticleMorp
           <ambientLight intensity={0.8} />
           
           <CameraRig basePosition={isMobile ? mobilePosition : desktopPosition}>
-            <group rotation={rotation} position={isMobile ? [1, -1, 0] : [0, -1, 0]} scale={isMobile ? 0.85 : 1}>
+            <group rotation={rotation} position={isMobile ? [1, -1, 0] : [0, -1, 0]} scale={isMobile ? 0.7 : 1}>
               <Particles 
                 setError={setError} 
                 duration={animationDuration} 

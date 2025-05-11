@@ -29,30 +29,31 @@ const BLACK_COLOR = new THREE.Color("#202020");
 /**
  * Generates 3D points and colors for a detailed bicycle and road surface.
  * @param count Total number of particles (including padding).
+ * @param isMobile Whether the device is a mobile device.
  * @returns Object containing position and color arrays.
  */
-export function generateBicyclePoints(count: number): { positions: THREE.Vector3[]; colors: THREE.Color[] } {
+export function generateBicyclePoints(count: number, isMobile: boolean = false): { positions: THREE.Vector3[]; colors: THREE.Color[] } {
   // Initialize points array with estimated capacity to reduce reallocations
   const points: THREE.Vector3[] = [];
   const colors: THREE.Color[] = [];
 
-  // Geometry parameters
-  const scale = 1.4;
+  // Geometry parameters - adjust scale and spacing for mobile
+  const scale = isMobile ? 1.8 : 1.4; // Larger scale for mobile to make core elements more visible
   const wheelRadius = 0.9 * scale;
-  const wheelBase = 2.0 * scale;
+  const wheelBase = isMobile ? 1.8 * scale : 2.0 * scale; // Slightly reduced wheelbase for mobile
   const frameHeight = 1.2 * scale;
   const bottomBracketHeight = 0.5 * scale;
   const seatTubeHeight = 1.2 * scale;
-  const roadY = -wheelRadius * 1.2;
+  const roadY = -wheelRadius * (isMobile ? 1.3 : 1.2); // Move road slightly lower on mobile
 
-  // Key reference points
-  const rearWheelCenter = new THREE.Vector3(-wheelBase / 2 - 0.3 * scale, 0, 0);
+  // Key reference points - adjusted for mobile viewing
+  const rearWheelCenter = new THREE.Vector3(-wheelBase / 2 - (isMobile ? 0.25 : 0.3) * scale, 0, 0);
   const frontWheelCenter = new THREE.Vector3(wheelBase / 2, 0, 0);
   const bottomBracket = new THREE.Vector3(-wheelBase / 4, bottomBracketHeight, 0);
   const seatTop = new THREE.Vector3(-wheelBase / 4, bottomBracketHeight + seatTubeHeight, 0);
   const headTubeBottom = new THREE.Vector3(wheelBase / 4, bottomBracketHeight + wheelRadius / 1.5, 0);
   const headTubeTop = new THREE.Vector3(wheelBase / 4, bottomBracketHeight + frameHeight, 0);
-  const frameWidth = wheelRadius * 0.09;
+  const frameWidth = wheelRadius * (isMobile ? 0.1 : 0.09); // Slightly thicker frame for mobile
 
   // Track starting points count for each component to monitor distribution
   const pointCountBefore = {
@@ -65,25 +66,45 @@ export function generateBicyclePoints(count: number): { positions: THREE.Vector3
     road: 0,
     finish: 0
   };
+  
+  // Calculate component point budgets based on total count and mobile factor
+  const totalBudget = count * 0.95; // Reserve 5% for padding
+  
+  // Component point distribution ratios (can be adjusted based on visual importance)
+  const componentRatios = {
+    wheels: isMobile ? 0.25 : 0.22,
+    frame: isMobile ? 0.25 : 0.22,
+    seatpost: isMobile ? 0.06 : 0.08,
+    handlebars: isMobile ? 0.1 : 0.12,
+    drivetrain: isMobile ? 0.14 : 0.16,
+    road: isMobile ? 0.2 : 0.2
+  };
 
-  // Execute all parts via imported modules with point tracking
+  // Execute all parts via imported modules with density control for mobile
   pointCountBefore.start = points.length;
-  addWheels(points, colors, rearWheelCenter, frontWheelCenter, wheelRadius, WHITE_COLOR);
+  addWheels(points, colors, rearWheelCenter, frontWheelCenter, wheelRadius, WHITE_COLOR, 
+            isMobile ? Math.floor(totalBudget * componentRatios.wheels) : undefined);
   pointCountBefore.wheels = points.length;
   
-  addFrame(points, colors, bottomBracket, headTubeBottom, headTubeTop, seatTop, rearWheelCenter, frontWheelCenter, frameWidth, ORANGE_COLOR);
+  addFrame(points, colors, bottomBracket, headTubeBottom, headTubeTop, seatTop, 
+           rearWheelCenter, frontWheelCenter, frameWidth, ORANGE_COLOR,
+           isMobile ? Math.floor(totalBudget * componentRatios.frame) : undefined);
   pointCountBefore.frame = points.length;
   
-  addSeatpostAndSaddle(points, colors, seatTop, seatTubeHeight, wheelRadius, frameWidth, ORANGE_COLOR);
+  addSeatpostAndSaddle(points, colors, seatTop, seatTubeHeight, wheelRadius, frameWidth, ORANGE_COLOR,
+                       isMobile ? Math.floor(totalBudget * componentRatios.seatpost) : undefined);
   pointCountBefore.seatpost = points.length;
   
-  addHandlebars(points, colors, headTubeTop, wheelRadius, frameWidth, ORANGE_COLOR);
+  addHandlebars(points, colors, headTubeTop, wheelRadius, frameWidth, ORANGE_COLOR,
+                isMobile ? Math.floor(totalBudget * componentRatios.handlebars) : undefined);
   pointCountBefore.handlebars = points.length;
   
-  addDrivetrain(points, colors, bottomBracket, rearWheelCenter, wheelRadius, frameWidth, ORANGE_COLOR, WHITE_COLOR);
+  addDrivetrain(points, colors, bottomBracket, rearWheelCenter, wheelRadius, frameWidth, ORANGE_COLOR, WHITE_COLOR,
+                isMobile ? Math.floor(totalBudget * componentRatios.drivetrain) : undefined);
   pointCountBefore.drivetrain = points.length;
   
-  addRoadSurface(points, colors, wheelBase, scale, roadY, WHITE_COLOR, GRAY_COLOR, ORANGE_COLOR);
+  addRoadSurface(points, colors, wheelBase, scale, roadY, WHITE_COLOR, GRAY_COLOR, ORANGE_COLOR,
+                 isMobile ? Math.floor(totalBudget * componentRatios.road) : undefined);
   pointCountBefore.road = points.length;
   
   // Center the model
@@ -92,8 +113,14 @@ export function generateBicyclePoints(count: number): { positions: THREE.Vector3
   ctr.y = 0;
   points.forEach(p => p.sub(ctr));
 
+  // Mobile-specific adjustments
+  if (isMobile) {
+    // Move the entire bike slightly up for better mobile viewing
+    points.forEach(p => p.y += wheelRadius * 0.1);
+  }
+
   // Log component point distribution to help with tuning
-  console.log("Point distribution:", {
+  console.log(`Point distribution (${isMobile ? 'mobile' : 'desktop'}):`, {
     wheels: pointCountBefore.wheels - pointCountBefore.start,
     frame: pointCountBefore.frame - pointCountBefore.wheels,
     seatpost: pointCountBefore.seatpost - pointCountBefore.frame,

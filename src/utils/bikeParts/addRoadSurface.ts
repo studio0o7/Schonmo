@@ -19,13 +19,23 @@ export function addRoadSurface(
   roadY: number,
   WHITE_COLOR: THREE.Color,
   GRAY_COLOR: THREE.Color,
-  ORANGE_COLOR: THREE.Color
+  ORANGE_COLOR: THREE.Color,
+  pointBudget?: number
 ) {
+  // Track starting points to manage budget
+  const startingPoints = points.length;
+
   // Text positioning
   const textY = roadY - wheelBase * 0.05;
   const textBaseWidth = wheelBase * 1.8;
   const textHeight = wheelBase * 0.4;
-  const particleDensity = 12000; // Further increased for higher density
+  
+  // Adjust particle density based on budget
+  let particleDensity = 12000; // Default high density
+  if (pointBudget) {
+    particleDensity = pointBudget < 5000 ? 4000 : 
+                      pointBudget < 10000 ? 8000 : 12000;
+  }
 
   // Draw the "SCHONMO" text laid flat on the road (horizontal XZ plane)
   drawText("SCHONMO", textBaseWidth, textHeight, 0, textY, 0, WHITE_COLOR, ORANGE_COLOR, particleDensity);
@@ -196,5 +206,12 @@ export function addRoadSurface(
       points.push(new THREE.Vector3(x, y, zOffset));
       colors.push(color);
     }
+  }
+  
+  // If we're over budget, truncate
+  if (pointBudget && points.length - startingPoints > pointBudget) {
+    const toRemove = (points.length - startingPoints) - pointBudget;
+    points.splice(points.length - toRemove, toRemove);
+    colors.splice(colors.length - toRemove, toRemove);
   }
 } 

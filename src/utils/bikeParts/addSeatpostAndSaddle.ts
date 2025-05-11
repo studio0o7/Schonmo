@@ -9,6 +9,7 @@ import * as THREE from "three";
  * @param wheelRadius Radius of the wheels.
  * @param frameWidth Thickness of the frame tubes.
  * @param ORANGE_COLOR Color of the frame.
+ * @param pointBudget Optional maximum number of points to generate.
  */
 export function addSeatpostAndSaddle(
   points: THREE.Vector3[],
@@ -17,10 +18,22 @@ export function addSeatpostAndSaddle(
   seatTubeHeight: number,
   wheelRadius: number,
   frameWidth: number,
-  ORANGE_COLOR: THREE.Color
+  ORANGE_COLOR: THREE.Color,
+  pointBudget?: number
 ) {
+  // Track starting points to manage budget
+  const startingPoints = points.length;
+
   const BLACK_COLOR = new THREE.Color("#202020");
   const SILVER_COLOR = new THREE.Color("#C0C0C0");
+  
+  // Adjust detail levels for mobile if budget is specified
+  let detailMultiplier = 1.0;
+  if (pointBudget) {
+    // Apply a lower detail multiplier if we have a limited budget
+    detailMultiplier = pointBudget < 5000 ? 0.4 : 
+                       pointBudget < 10000 ? 0.7 : 1.0;
+  }
   
   // Seatpost - slightly angled
   const seatPostH = seatTubeHeight * 0.18;
@@ -86,8 +99,8 @@ export function addSeatpostAndSaddle(
   const sadLen = saddleLength;
   const sadWid = saddleWidth;
   // Reduce grid density to eliminate unnecessary particles
-  const xDivs = 25; // Reduced from 60
-  const zDivs = 15; // Reduced from 30
+  const xDivs = Math.floor(25 * detailMultiplier); // Adjusted by detail multiplier
+  const zDivs = Math.floor(15 * detailMultiplier); // Adjusted by detail multiplier
   
   // Track points to avoid duplicates
   const usedPositions = new Set<string>();
@@ -197,5 +210,12 @@ export function addSeatpostAndSaddle(
         colors.push(color);
       }
     }
+  }
+  
+  // If we're over budget, truncate
+  if (pointBudget && points.length - startingPoints > pointBudget) {
+    const toRemove = (points.length - startingPoints) - pointBudget;
+    points.splice(points.length - toRemove, toRemove);
+    colors.splice(colors.length - toRemove, toRemove);
   }
 } 

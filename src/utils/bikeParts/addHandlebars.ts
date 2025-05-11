@@ -8,6 +8,7 @@ import * as THREE from "three";
  * @param wheelRadius Radius of the wheels.
  * @param frameWidth Thickness of the frame tubes.
  * @param ORANGE_COLOR Color of the frame.
+ * @param pointBudget Optional maximum number of points to generate.
  */
 export function addHandlebars(
   points: THREE.Vector3[],
@@ -15,12 +16,24 @@ export function addHandlebars(
   headTubeTop: THREE.Vector3,
   wheelRadius: number,
   frameWidth: number,
-  ORANGE_COLOR: THREE.Color
+  ORANGE_COLOR: THREE.Color,
+  pointBudget?: number
 ) {
+  // Track starting points to manage budget
+  const startingPoints = points.length;
+
   // Use imported colors and create new ones
   const SILVER_COLOR = new THREE.Color("#C0C0C0");
   // Create a darker gray for handlebar components
   const DARK_GRAY_COLOR = new THREE.Color("#2A2A2A");
+
+  // Adjust detail levels for mobile if budget is specified
+  let detailMultiplier = 1.0;
+  if (pointBudget) {
+    // Apply a lower detail multiplier if we have a limited budget
+    detailMultiplier = pointBudget < 8000 ? 0.5 : 
+                       pointBudget < 15000 ? 0.7 : 1.0;
+  }
 
   // Stem - longer and at better angle
   const stemHeight = wheelRadius * 0.15;
@@ -42,7 +55,7 @@ export function addHandlebars(
   createTube(
     headTubeTop, 
     stemTop, 
-    60, // Reduced from 3000 which was excessive
+    Math.floor(60 * detailMultiplier), // Adjusted by detail multiplier
     frameWidth * 0.7, 
     ORANGE_COLOR
   );
@@ -253,5 +266,12 @@ export function addHandlebars(
         addedParticles++;
       }
     }
+  }
+  
+  // If we're over budget, truncate
+  if (pointBudget && points.length - startingPoints > pointBudget) {
+    const toRemove = (points.length - startingPoints) - pointBudget;
+    points.splice(points.length - toRemove, toRemove);
+    colors.splice(colors.length - toRemove, toRemove);
   }
 } 

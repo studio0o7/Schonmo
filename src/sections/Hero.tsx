@@ -77,13 +77,13 @@ export default function Hero() {
       {/* Content overlay - completely invisible until animation completes */}
       {isLoaded && (
         <motion.div 
-          className="relative z-20 w-full h-full flex flex-col justify-between pointer-events-none"
+          className="relative z-20 w-full h-full flex flex-col justify-between"
           initial={{ opacity: 0 }}
           animate={{ opacity: animationComplete ? 1 : 0 }}
           transition={{ duration: 0.5 }}
         >
           {/* Top section: Title and Description - positioned higher on mobile */}
-          <div className={`container mx-auto ${isMobile ? 'pt-28' : 'pt-20 md:pt-32'} text-center`}>
+          <div className={`container mx-auto ${isMobile ? 'pt-28' : 'pt-20 md:pt-32'} text-center pointer-events-none`}>
             {isMobile ? (
               // Mobile-specific title layout with line break after 2 words
               <div>
@@ -148,7 +148,7 @@ export default function Hero() {
             
             {/* Description */}
             <motion.p
-              className="mt-4 text-base md:text-lg text-gray-300 font-chakra mx-auto px-4 max-w-full md:whitespace-nowrap"
+              className="mt-4 text-base md:text-lg text-gray-300 font-chakra mx-auto px-4 max-w-full md:whitespace-nowrap pointer-events-none"
               initial={{ opacity: 0, y: 20 }}
               animate={animationComplete ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: 0.8, duration: 0.6 }}

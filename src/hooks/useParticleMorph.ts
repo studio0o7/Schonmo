@@ -9,18 +9,20 @@ import { generateBicyclePoints } from "../utils/generateBicyclePoints";
  * @param totalDuration Time in seconds for full formation.
  * @param setError Callback to clear or set errors.
  * @param onComplete Optional callback for when animation completes.
+ * @param isMobile Whether the device is a mobile device.
  */
 export function useParticleMorph(
   particleCount: number,
   totalDuration: number,
   setError: (err: string | null) => void,
-  onComplete?: () => void
+  onComplete?: () => void,
+  isMobile?: boolean
 ) {
   // Track if animation is completed
   const isCompletedRef = useRef(false);
 
   // Generate target shape once
-  const targetData = useMemo(() => generateBicyclePoints(particleCount), [particleCount]);
+  const targetData = useMemo(() => generateBicyclePoints(particleCount, isMobile), [particleCount, isMobile]);
 
   // Initial positions: evenly distributed on a sphere around the scene
   const initialPositions = useMemo(() => {

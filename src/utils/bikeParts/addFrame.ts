@@ -12,6 +12,7 @@ import * as THREE from "three";
  * @param frontWheelCenter Center position of front wheel.
  * @param frameWidth Thickness of the frame tubes.
  * @param ORANGE_COLOR Color of the frame.
+ * @param pointBudget Optional maximum number of points to generate.
  */
 export function addFrame(
   points: THREE.Vector3[],
@@ -23,13 +24,25 @@ export function addFrame(
   rearWheelCenter: THREE.Vector3,
   frontWheelCenter: THREE.Vector3,
   frameWidth: number,
-  ORANGE_COLOR: THREE.Color
+  ORANGE_COLOR: THREE.Color,
+  pointBudget?: number
 ) {
+  // Track starting points to manage budget
+  const startingPoints = points.length;
+  
   const SILVER_COLOR = new THREE.Color("#C0C0C0");
   const DARK_ORANGE = new THREE.Color("#c85e01");
   
-  // Frame tubes with significantly increased segment density
-  const tubeSegments = 800;
+  // Adjust detail levels for mobile if budget is specified
+  let detailMultiplier = 1.0;
+  if (pointBudget) {
+    // Apply a lower detail multiplier if we have a limited budget
+    detailMultiplier = pointBudget < 30000 ? 0.5 : 
+                       pointBudget < 60000 ? 0.7 : 1.0;
+  }
+  
+  // Frame tubes with density adjusted based on budget
+  const tubeSegments = Math.floor(800 * detailMultiplier);
   
   // Down tube - tapered wider at BB end
   createTaperedTube(
@@ -328,5 +341,12 @@ export function addFrame(
       points.push(point);
       colors.push(color);
     }
+  }
+  
+  // If we're over budget, truncate
+  if (pointBudget && points.length - startingPoints > pointBudget) {
+    const toRemove = (points.length - startingPoints) - pointBudget;
+    points.splice(points.length - toRemove, toRemove);
+    colors.splice(colors.length - toRemove, toRemove);
   }
 } 

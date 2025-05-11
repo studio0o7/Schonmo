@@ -10,6 +10,7 @@ import * as THREE from "three";
  * @param frameWidth Thickness of the frame tubes.
  * @param ORANGE_COLOR Color of the frame.
  * @param WHITE_COLOR Color for drivetrain elements.
+ * @param pointBudget Optional maximum number of points to generate.
  */
 export function addDrivetrain(
   points: THREE.Vector3[],
@@ -19,7 +20,8 @@ export function addDrivetrain(
   wheelRadius: number,
   frameWidth: number,
   ORANGE_COLOR: THREE.Color,
-  WHITE_COLOR: THREE.Color
+  WHITE_COLOR: THREE.Color,
+  pointBudget?: number
 ) {
   const SILVER_COLOR = new THREE.Color("#C0C0C0");
   const BLACK_COLOR = new THREE.Color("#202020");
